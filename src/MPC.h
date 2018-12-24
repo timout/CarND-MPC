@@ -147,11 +147,11 @@ private:
     // state dimensionality             
     const size_t state_dimension{ 6 };   
     // reference speed
-    const double ref_v { 60 };           
+    const double ref_v { 80 };           
     //start indices of the state
     const StateIndeces indeces{ n }; 
     // cost weights
-    const std::vector<double> cost_weights = {.5, 500, .4, 1, 1, .003, .03, 500, 1};
+    const std::vector<double> cost_weights = {0.5, 500, 0.2, 1, 1, 0.003, 0.03, 500, 1};
 
     // number of independent variables
     const size_t number_vars { (n * state_dimension + (this->n - 1) * 2) };
