@@ -95,13 +95,13 @@ int main(int argc, char* argv[])
                     msgJson["steering_angle"] = solution->steering;
                     msgJson["throttle"] = solution->accelerator;
                     
-                    // points of minimum cost trajectory returned from the solver (green line)
-                    msgJson["mpc_x"] = solution->tx;
-                    msgJson["mpc_y"] = solution->ty;
+                    // points of minimum cost trajectory returned from the solver
+                    msgJson["mpc_x"] = solution->x;
+                    msgJson["mpc_y"] = solution->y;
                     
-                    // Reference points in the vehicle's coordinate system (yellow line)
-                    msgJson["next_x"] = solution->next_tx;
-                    msgJson["next_y"] = solution->next_ty;
+                    // Reference points in the vehicle's coordinate system
+                    msgJson["next_x"] = solution->next_x;
+                    msgJson["next_y"] = solution->next_y;
                     
                     
                     auto msg = "42[\"steer\"," + msgJson.dump() + "]";

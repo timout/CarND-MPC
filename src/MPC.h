@@ -11,21 +11,21 @@ struct Solution
     const double steering;     // steering control angle in radians
     const double accelerator;  // accelerator control value [-1...1]
     // points of minimum cost trajectory returned from the solver (green line)
-    const std::vector<double> tx;
-    const std::vector<double> ty;
+    const std::vector<double> x;
+    const std::vector<double> y;
     
     // Reference points in the vehicle's coordinate system (yellow line)
-    const std::vector<double> next_tx;
-    const std::vector<double> next_ty;
+    const std::vector<double> next_x;
+    const std::vector<double> next_y;
 
     Solution(
       double steering, 
       double accelerator, 
-      std::vector<double> tx, 
-      std::vector<double> ty,
-      std::vector<double> next_tx,
-      std::vector<double> next_ty) 
-        : steering(steering), accelerator(accelerator), tx(tx), ty(ty), next_tx(next_tx), next_ty(next_ty) {} 
+      std::vector<double> x, 
+      std::vector<double> y,
+      std::vector<double> next_x,
+      std::vector<double> next_y) 
+        : steering(steering), accelerator(accelerator), x(x), y(y), next_x(next_x), next_y(next_y) {} 
 };
 
 class MPC {

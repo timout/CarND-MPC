@@ -166,19 +166,19 @@ std::shared_ptr<Solution> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs)
     double accelerator = solution.x[indeces.a_start];
     
     // fill minimum cost trajectory points
-    std::vector<double> tx = std::vector<double>(this->n - 1);
-    std::vector<double> ty = std::vector<double>(this->n - 1);
+    std::vector<double> x = std::vector<double>(this->n - 1);
+    std::vector<double> y = std::vector<double>(this->n - 1);
     for (int i = 0; i < this->n - 1; ++i) {
-        tx.push_back(solution.x[indeces.x_start + i + 1]);
-        ty.push_back(solution.x[indeces.y_start + i + 1]);
+        x.push_back(solution.x[indeces.x_start + i + 1]);
+        y.push_back(solution.x[indeces.y_start + i + 1]);
     }
     // fill the reference points in vehicles coordinate space
     int num_points = 20;
-    std::vector<double> next_tx = std::vector<double>(num_points-1);
-    std::vector<double> next_ty = std::vector<double>(num_points-1);
+    std::vector<double> next_x = std::vector<double>(num_points-1);
+    std::vector<double> next_y = std::vector<double>(num_points-1);
     for(int i = 1; i < 20; ++i) {
-        next_tx.push_back(2 * i);
-        next_ty.push_back(polyeval(poly_coeffs, 2 * i));
+        next_x.push_back(2 * i);
+        next_y.push_back(polyeval(poly_coeffs, 2 * i));
     }
-    return std::make_shared<Solution>(steering, accelerator, tx, ty, next_tx, next_ty);
+    return std::make_shared<Solution>(steering, accelerator, x, y, next_x, next_y);
 }
