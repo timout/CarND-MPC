@@ -38,18 +38,18 @@ public:
     /** Vehicle's state. */
     struct State 
     {
-        ADdouble x;
-        ADdouble y;
-        ADdouble psi;
-        ADdouble v;
-        ADdouble cte;
-        ADdouble epsi;
+        const ADdouble x;
+        const ADdouble y;
+        const ADdouble psi;
+        const ADdouble v;
+        const ADdouble cte;
+        const ADdouble epsi;
 
         State(ADdouble x, ADdouble y, ADdouble psi, ADdouble v, ADdouble cte, ADdouble epsi) : 
           x(x), y(y), psi(psi), v(v), cte(cte), epsi(epsi)
         {}
 
-        std::vector<ADdouble> values() 
+        inline std::vector<ADdouble> values() const
         {
           return { x, y, psi, v, cte, epsi };
         }
@@ -103,72 +103,60 @@ public:
     
 private:
     
-    /** Updates vector of constraints according to the vector of vars and states at
-     * timestep t and t+1
+    /** Updates vector of constraints according to the vector of vars and states at timestep t and t+1
      * @param fg: vector of constraints
      * @param vars: vector of variables
      * @param t: timestep
-     * @param state_1: state at time t+1
-     * @param state_0: state at time t
      */
-    void update(
-      ADvector& fg, 
-      const ADvector& vars, 
-      int t,
-      State & state_1,
-      State & state_0);
+    void update(ADvector& fg, const ADvector& vars, int t);
 
-    inline ADdouble dx(ADdouble & x_1, ADdouble & x_0, ADdouble & v0, ADdouble & psi0) const 
+    inline ADdouble dx(State & state0, State & state1) const 
     { 
-      return x_1 - (x_0 + v0 * CppAD::cos(psi0) * this->dt);
+      return state1.x - (state0.x + state0.v * CppAD::cos(state0.psi) * this->dt);
     };
 
-    inline ADdouble dy(ADdouble & y_1, ADdouble & y_0, ADdouble & v0, ADdouble & psi0) const
+    inline ADdouble dy(State & state0, State & state1) const
     {
-        return y_1 - (y_0 + v0 * CppAD::sin(psi0) * this->dt);
+        return state1.y - (state0.y + state0.v * CppAD::sin(state0.psi) * this->dt);
     };
 
-    inline ADdouble dpsi(ADdouble & psi_1, ADdouble & psi_0, ADdouble & v0, ADdouble & delta0) const
+    inline ADdouble dpsi(State & state0, State & state1, ADdouble & delta0) const
     {
-        return psi_1 - (psi_0 - v0 / this->Lf * delta0 * this->dt);
+        return state1.psi - (state0.psi - state0.v / this->Lf * delta0 * this->dt);
     };
 
-    inline ADdouble dv(ADdouble & v_1, ADdouble & v_0, ADdouble & a) const 
+    inline ADdouble dv(State & state0, State & state1, ADdouble & a) const 
     {
-        return v_1 - (v_0 + a * this->dt);
+        return state1.v - (state0.v + a * this->dt);
     };
 
-    inline ADdouble dcte(ADdouble & cte_1, ADdouble & f0, ADdouble & y0, ADdouble & v0, ADdouble & epsi0) const 
+    inline ADdouble dcte(State & state0, State & state1, ADdouble & f0) const 
     {
-        return  cte_1 - (f0 - y0 + v0 * CppAD::sin(epsi0) * this->dt);
+        return  state1.cte - (f0 - state0.y + state0.v * CppAD::sin(state0.epsi) * this->dt);
     };
 
-    inline ADdouble depsi(ADdouble & epsi1, ADdouble & psi0, ADdouble & psides0, ADdouble & v0, ADdouble & delta0) const 
+    inline ADdouble depsi(State & state0, State & state1, ADdouble & psides0, ADdouble & delta0) const 
     {
-        return epsi1 - ((psi0 - psides0) + v0 / this->Lf * delta0 * this->dt);
+        return state1.epsi - ((state0.psi - psides0) + state0.v / this->Lf * delta0 * this->dt);
     };
-     
-    /** Creates state for a given timestep index
-     * @param t: ndex
-     * @param vars: variables
-     */
-    State create_state(int t, const ADvector & vars);
     
-    const size_t n = 10;                  // timesteps count
-    const double dt {0.1};               // timestep duration, s
-    const size_t state_dimension = 6;   // state dimensionality
-
-    const double ref_v {60};           // reference speed
-
-    const StateIndeces indeces{n};  //start indices of the state
-    
+    // timesteps count
+    const size_t n { 10 };  
+    // timestep duration, s                
+    const double dt { 0.1 };  
+    // state dimensionality             
+    const size_t state_dimension{ 6 };   
+    // reference speed
+    const double ref_v { 60 };           
+    //start indices of the state
+    const StateIndeces indeces{ n }; 
     // cost weights
     const std::vector<double> cost_weights = {.5, 500, .4, 1, 1, .003, .03, 500, 1};
 
     // number of independent variables
     const size_t number_vars { (n * state_dimension + (this->n - 1) * 2) };
     /// Number of constraints 
-    const size_t number_constraints = (n * state_dimension);
+    const size_t number_constraints { (n * state_dimension) };
 
     Eigen::VectorXd poly_coeffs;  // polynomial coefficients          
 };

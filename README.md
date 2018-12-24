@@ -49,10 +49,7 @@ T is the product of two other variables, T =  N * dt. In the case of driving a c
 at most. Beyond that horizon, the environment will change enough that it won't make sense to predict any further 
 into the future.  N and dt are hyperparameters you will need to tune for each model predictive controller you build. 
 However, there are some general guidelines: T should be as large as possible, while dt should be as small as possible.
-These guidelines create tradeoffs.
-
-The goal of Model Predictive Control is to optimize the control inputs: [δ,a]. An optimizer will tune these inputs 
-until a low cost vector of control inputs is found. 
+With the Kinematic Model for the MPC control we are not interested beyond the 1 second time horizon at each timestep, so 10 for the number of timesteps N and 100 ms for dt is reasonable choice.
 
 ## Model Predictive Control with Latency
 
