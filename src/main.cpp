@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
                     psi = vel / mpc.Lf * -steer_value * lt;
                     // Segment length travelled during the period of latency
                     double L = v * lt + 0.5 * throttle * pow(lt, 2);
-                    // Derived geometrically. (L / psi) is a curvature radius
+                    // r = (L / psi) is a curvature radius
                     // x = r * cos(angle)
-                    // y = r* sin(angle) or y = x * tan(angle) since tan(angle) = y/x
+                    // y = r * sin(angle) or y = x * tan(angle) since tan(angle) = y/x
                     px = ( std::abs(psi) > 0.0000001 ) ? (L / psi) * cos(std::abs(psi)) : L;
                     py = px * tan(psi); 
                     
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
                     Eigen::VectorXd state(6);
                     state << px, py, psi, vel, cte, epsi;
-                    
+
                     auto solution = mpc.Solve(state, coeffs);
                     
                     // Prepare JSON message for the simulator environment
