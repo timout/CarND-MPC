@@ -51,7 +51,7 @@ The model uses N (number of steps) = 10 and dt (time step) = 0.1 to calculate ve
 That means that models uses 1 second as a horizon to calculate optimal sequence of actuations.  
 Cahnge cost for:
 * N - increasing it allows to take longer future reference trajectory into account when computing the optimal values for present and require longer computational time.
-* dt - increasing improves approximation but decreases time frame.
+* dt - decreasing improves approximation but decreases time frame.
 
 I have tested it within N=[10,15] and dt=[0.05, 0.3]: 10 and 0.1 showed the best from prerformance:precision perspectives. 
 

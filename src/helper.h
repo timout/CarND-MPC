@@ -46,7 +46,7 @@ inline Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals, int
 
 // Convert waypoints to vehicle coordinates.
 // Completed in 2 steps:
-// - translation
+// - translation: waypoint_map - vehicle_map
 // - rotation with inverse rotation matrix:
 // [ cos(psi)  sin(psi) ]
 // [ -sin(psi) cos(psi) ]
