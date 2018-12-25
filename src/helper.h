@@ -44,7 +44,14 @@ inline Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals, int
     return result;
 }
 
-inline void convert_space(
+// Convert waypoints to vehicle coordinates.
+// Completed in 2 steps:
+// - translation
+// - rotation with inverse rotation matrix:
+// [ cos(psi)  sin(psi) ]
+// [ -sin(psi) cos(psi) ]
+
+inline void convert_space (
     std::vector<double> & ptsx, 
     std::vector<double> & ptsy, 
     double px, 

@@ -6,12 +6,8 @@ Self-Driving Car Engineer Nanodegree Program
 ---
 
 ## Objective
-This project is to use Model Predictive Control (MPC) to drive a car in a game simulator. The server provides 
-reference waypoints (yellow line in the demo video) via websocket, and we use MPC to compute steering and throttle commands 
-to drive the car. The solution must be robust to 100ms latency, since it might encounter in real-world application.
-
-In this project, the MPC optimize the actuators (steering and throttle), simulate 
-the vehicle trajectory, and minimize the cost like cross-track error.
+In this project I implemented Model Predictive Control to drive the car around the track.  
+Addidtional requirement : There's a 100 millisecond latency between actuations commands on top of the connection latency.
 
 ## Model
 
@@ -23,39 +19,41 @@ It may be useful to distinguish three significant parts within it: *State*, *Act
 
 **States**: 
 
-* x: cars x position
-* y: cars y position
-* ψ (psi): vehicle's angle in radians from the x-direction (radians)
-* ν: vehicle's velocity
+* x: x position
+* y: y position
+* ψ (psi): orientation (yaw)
+* ν: velocity
 * cte: cross track error
 * eψ : orientation error
 
 **Actuator values**:
 
 * δ (delta): steering angle
-* a : acceleration (including throttle and break)
+* a : throttle (breaking/acceleration).
 
-**Update equations**:
+**Kinematic model standard equations**:
 
 ![alt][formulae]
 
-## Timestep Length and Elapsed Duration (N and dt)
+## Implementation
 
-* N = 10
-* dt = 0.1 s 
+My implementation is slightly refactored version of MPC given in class. It uses https://projects.coin-or.org/Ipopt as a lib for large-scale ​nonlinear optimization. 
 
-The prediction horizon is the duration over which future predictions are made. We’ll refer to this as T.
-T is the product of two other variables, T =  N * dt. In the case of driving a car, T should be a few seconds, 
-at most. Beyond that horizon, the environment will change enough that it won't make sense to predict any further 
-into the future.  N and dt are hyperparameters you will need to tune for each model predictive controller you build. 
-However, there are some general guidelines: T should be as large as possible, while dt should be as small as possible.
-With the Kinematic Model for the MPC control we are not interested beyond the 1 second time horizon at each timestep, so 10 for the number of timesteps N and 100 ms for dt is reasonable choice.
+#### Coordinate transformations
+The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp line 63 - uses helper.h `convert_space` function)
 
-## Model Predictive Control with Latency
+#### Latency compensation
+Simulator has builtin latency=100 millis. To make sure that the optimizer works with most present state that latency needs to be compensated: Code lines 69 - 90 (with explanation).
 
-In a real car, an actuation command won't execute instantly - there will be a delay as the command propagates 
-through the system. A realistic delay might be on the order of 100 milliseconds, so in this project 100 millisecond 
-latency is handled by Model Predictive Controller. 
+
+#### Optimization time horizon
+The model uses N (number of steps) = 10 and dt (time step) = 0.1 to calculate vehicle state.  
+That means that models uses 1 second as a horizon to calculate optimal sequence of actuations.  
+Cahnge cost for:
+* N - increasing it allows to take longer future reference trajectory into account when computing the optimal values for present and require longer computational time.
+* dt - increasing improves approximation but decreases time frame.
+
+I have tested it within N=[10,15] and dt=[0.05, 0.3]: 10 and 0.1 showed the best from prerformance:precision perspectives. 
 
 ## Dependencies
 
