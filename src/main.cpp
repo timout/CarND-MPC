@@ -82,10 +82,10 @@ int main(int argc, char* argv[])
                     Eigen::VectorXd coeffs = polyfit(ptsx_e, ptsy_e, mpc.POLYNOMIAL_ORDER);
                     // Computing initial cross-track and orientation errors.
                     double cte = polyeval(coeffs, px) - py;
-                    // desired orientation angle is tan to trajectory at x = 0
+                    // desired orientation angle: tangent to trajectory at x = 0
                     double dy = derivative(coeffs, px);
                     // orientation error = current orientation angle - desired angle.
-                    // current orientation angle from vehivale point of view is 0 degrees. => 
+                    // current orientation angle from vehicle point of view is 0 degrees. => 
                     // orientation error = 0 - desired angle
                     double epsi = 0 - atan(dy);
 
