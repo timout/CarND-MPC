@@ -56,45 +56,49 @@ int main(int argc, char* argv[])
                     double psi = j[1]["psi"];
                     double v = j[1]["speed"];
                     
-                    double steer_value = j[1]["steering_angle"];
-                    double throttle = j[1]["throttle"];
-                    
+                    double delta = j[1]["steering_angle"];
+                    double a = j[1]["throttle"];
+                    delta *= -1; //  change of sign because turning left is negative sign in simulator but positive yaw
+
                     // Convert points to vehicle's coordinate space
                     convert_space(ptsx, ptsy, px, py, psi);
-                    
+
                     // std::vector points vectors to Eigen::VectorXd of points vectors
                     Eigen::VectorXd ptsx_e = vec2eigen(ptsx);
                     Eigen::VectorXd ptsy_e = vec2eigen(ptsy);
-                    
-                    // Computing parameters for latency compensation..
-                    double lt = latency / 1000;
-                    // Vehicle velocity during lt
-                    double vel = v + throttle * lt;
-                    // Depending on steer_value, psi might have become non-zero during the period of latency
-                    psi = vel / mpc.Lf * -steer_value * lt;
-                    // Segment length travelled during the period of latency
-                    double L = v * lt + 0.5 * throttle * pow(lt, 2);
-                    // r = (L / psi) is a curvature radius
-                    // x = r * cos(angle)
-                    // y = r * sin(angle) or y = x * tan(angle) since tan(angle) = y/x
-                    // longitudinal displacement during lt
-                    px = ( std::abs(psi) > 0.0000001 ) ? (L / psi) * cos(std::abs(psi)) : L;
-                    // lateral displacement during lt
-                    py = px * tan(psi); 
 
                     // Fit a polynomial.
                     Eigen::VectorXd coeffs = polyfit(ptsx_e, ptsy_e, mpc.POLYNOMIAL_ORDER);
-                    // Computing initial cross-track and orientation errors.
-                    double cte = polyeval(coeffs, px) - py;
-                    // desired orientation angle: tangent to trajectory at x = px
-                    double dy = derivative(coeffs, px);
-                    // orientation error = current orientation angle - desired angle.
-                    // current orientation angle from vehicle point of view is 0 degrees (before latency compensation)
-                    // orientation error = psi (after latency compensation) - desired angle
-                    double epsi = psi - atan(dy); //Fixed 0 bug.
+
+                    // Because points were transformed to vehicle coordinates.
+                    psi = 0;
+
+                    // Calculates the cross track error
+                    // Because points were transformed to vehicle coordinates, x & y equal 0 below.
+                    double cte = polyeval(coeffs, 0);
+          
+                    // Calculate the orientation error
+                    // Derivative of the polyfit goes in atan() 
+                    // px = 0 in the vehicle coordinates, the higher orders are zero
+                    // Leaves only coeffs[1]
+                    double epsi = -atan(coeffs[1]);
+
+
+                    // Computing parameters for latency compensation..
+                    double lt = latency / 1000;
+
+
+                    // Predict state after latency
+                    // x, y and psi are all zero after transformation above
+                    px = 0.0 + v * lt; // psi is zero, cos(0) = 1
+                    py = 0.0;          // sin(0) = 0, y + v * 0 * lt
+                    cte = cte + v * sin(epsi) * lt;
+                    epsi = epsi + v * delta * lt / mpc.Lf;
+                    psi = psi + v * delta * lt / mpc.Lf;
+                    v = v + a * lt;
 
                     Eigen::VectorXd state(6);
-                    state << px, py, psi, vel, cte, epsi;
+                    state << px, py, psi, v, cte, epsi;
 
                     auto solution = mpc.Solve(state, coeffs);
                     
