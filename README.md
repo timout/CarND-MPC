@@ -40,13 +40,13 @@ It may be useful to distinguish three significant parts within it: *State*, *Act
 My implementation is slightly refactored version of MPC given in class. It uses IPOPT and CppAD. 
 
 #### Coordinate Transformations and Polynomial Fitting
-The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp lines 63-67 with explanation).
-Vehicle coordinate system is a system where vehicle is a center of the coordinate system. To build a line the vehicle should try to travel I used polyfit function (third-degree polynomial line)  on those transformed waypoints (line 86).  
+The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp lines 64-68 with explanation).
+Vehicle coordinate system is a system where vehicle is a center of the coordinate system. To build a line the vehicle should try to travel I used polyfit function (third-degree polynomial line)  on those transformed waypoints.  
 I used polyeval (polynomial function) to calculate cross-track error at px and py.  
 Psi error was calculated as: psi - desired angle  where desired orientation angle is tangent to trajectory at x (calculated using derivative function).  
 
 #### Latency compensation
-Simulator has builtin latency=100 millis. To make sure that the optimizer works with most present state that latency needs to be compensated: Code lines 69 - 90 (with explanation).
+Simulator has builtin latency=100 millis. To make sure that the optimizer works with most present state that latency needs to be compensated: Code lines 88 - 98 (with explanation).
 
 #### Optimization time horizon
 The model uses N (number of steps) = 10 and dt (time step) = 0.1 to calculate vehicle state.  
