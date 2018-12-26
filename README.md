@@ -37,7 +37,7 @@ It may be useful to distinguish three significant parts within it: *State*, *Act
 
 ## Implementation
 
-My implementation is slightly refactored version of MPC given in class. It uses https://projects.coin-or.org/Ipopt as a lib for large-scale ​nonlinear optimization. 
+My implementation is slightly refactored version of MPC given in class. It uses IPOPT and CppAD. 
 
 #### Coordinate Transformations and Polynomial Fitting
 The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp lines 63-67 with explanation).
@@ -51,11 +51,15 @@ Simulator has builtin latency=100 millis. To make sure that the optimizer works 
 #### Optimization time horizon
 The model uses N (number of steps) = 10 and dt (time step) = 0.1 to calculate vehicle state.  
 That means that models uses 1 second as a horizon to calculate optimal sequence of actuations.  
-Cahnge cost for:
+Change cost for:
 * N - increasing it allows to take longer future reference trajectory into account when computing the optimal values for present and require longer computational time.
 * dt - decreasing improves approximation but decreases time frame.
 
-I have tested it within N=[5,15] and dt=[0.05, 0.3]: 10 and 0.1 showed the best from prerformance:precision perspectives. 
+I have tested it within N=[5,20] and dt=[0.05, 0.3]:  
+* 10/0.1 showed the best from performance:precision perspectives
+* 15/0.14 showed something similar to 10/0.1 but my laptop used sligtly more resources.
+* All other values made the vehicle drive less steadily.  
+Practical testing in my implementation did not show predicted behaviour for N/dt changes so I suspect some more improvements needs to be done on it. 
 
 ## Dependencies
 

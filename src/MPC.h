@@ -154,7 +154,7 @@ private:
     // state dimensionality             
     const size_t state_dimension{ 6 };   
     // reference speed
-    const double ref_v { 85 };           
+    const double ref_v { 80 };           
     //start indices of the state
     const StateIndeces si{ n }; 
     // cost weights
