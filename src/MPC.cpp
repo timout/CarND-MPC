@@ -99,7 +99,7 @@ std::shared_ptr<Solution> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs)
     Dvector vars_lowerbound(number_vars);
     Dvector vars_upperbound(number_vars);
     
-    // Set all non-actuators upper and lowerlimits to the max negative and positive values.
+    // Set all non-actuators upper and lower limits to the max negative and positive values.
     for (int i = 0; i < si.delta_start; ++i) {
         vars_lowerbound[i] = -1.0e19;
         vars_upperbound[i] = 1.0e19;
