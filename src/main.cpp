@@ -62,12 +62,13 @@ int main(int argc, char* argv[])
                     // Convert points to vehicle's coordinate space
                     convert_space(ptsx, ptsy, px, py, psi);
                     
-                    // Eigen::VectorXd versions of points vectors
+                    // std::vector points vectors to Eigen::VectorXd of points vectors
                     Eigen::VectorXd ptsx_e = vec2eigen(ptsx);
                     Eigen::VectorXd ptsy_e = vec2eigen(ptsy);
                     
                     // Computing parameters for latency compensation..
                     double lt = latency / 1000;
+                    // Vehicle velocity during lt
                     double vel = v + throttle * lt;
                     // Depending on steer_value, psi might have become non-zero during the period of latency
                     psi = vel / mpc.Lf * -steer_value * lt;
@@ -76,18 +77,21 @@ int main(int argc, char* argv[])
                     // r = (L / psi) is a curvature radius
                     // x = r * cos(angle)
                     // y = r * sin(angle) or y = x * tan(angle) since tan(angle) = y/x
+                    // longitudinal displacement during lt
                     px = ( std::abs(psi) > 0.0000001 ) ? (L / psi) * cos(std::abs(psi)) : L;
+                    // lateral displacement during lt
                     py = px * tan(psi); 
-                    
+
+                    // Fit a polynomial.
                     Eigen::VectorXd coeffs = polyfit(ptsx_e, ptsy_e, mpc.POLYNOMIAL_ORDER);
                     // Computing initial cross-track and orientation errors.
                     double cte = polyeval(coeffs, px) - py;
-                    // desired orientation angle: tangent to trajectory at x = 0
+                    // desired orientation angle: tangent to trajectory at x = px
                     double dy = derivative(coeffs, px);
                     // orientation error = current orientation angle - desired angle.
-                    // current orientation angle from vehicle point of view is 0 degrees. => 
-                    // orientation error = 0 - desired angle
-                    double epsi = 0 - atan(dy);
+                    // current orientation angle from vehicle point of view is 0 degrees (before latency compensation)
+                    // orientation error = psi (after latency compensation) - desired angle
+                    double epsi = psi - atan(dy); //Fixed 0 bug.
 
                     Eigen::VectorXd state(6);
                     state << px, py, psi, vel, cte, epsi;

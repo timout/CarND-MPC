@@ -10,11 +10,11 @@ struct Solution
 {
     const double steering;     // steering control angle in radians
     const double accelerator;  // accelerator control value [-1...1]
-    // points of minimum cost trajectory returned from the solver (green line)
+    // Predicted trajectory (green line)
     const std::vector<double> x;
     const std::vector<double> y;
     
-    // Reference points in the vehicle's coordinate system (yellow line)
+    // Reference line (yellow line)
     const std::vector<double> next_x;
     const std::vector<double> next_y;
 
@@ -110,6 +110,13 @@ private:
      */
     void update(ADvector& fg, const ADvector& vars, int t);
 
+    /** Apply cost weights 
+     * @param fg: vector of constraints
+     * @param vars: vector of variables
+     * @param t: timestep
+    */
+    void apply_cost(ADvector & fg, const ADvector & vars, int t);
+
     inline ADdouble dx(State & state0, State & state1) const 
     { 
       return state1.x - (state0.x + state0.v * CppAD::cos(state0.psi) * this->dt);
@@ -147,18 +154,18 @@ private:
     // state dimensionality             
     const size_t state_dimension{ 6 };   
     // reference speed
-    const double ref_v { 80 };           
+    const double ref_v { 85 };           
     //start indices of the state
-    const StateIndeces indeces{ n }; 
+    const StateIndeces si{ n }; 
     // cost weights
-    const std::vector<double> cost_weights = {0.5, 500, 0.2, 1, 1, 0.003, 0.03, 500, 1};
+    const std::vector<double> cost_weights = {2, 600, 0.2, 100, 2, 0.002, 0.05, 600, 1};
 
     // number of independent variables
     const size_t number_vars { (n * state_dimension + (this->n - 1) * 2) };
-    /// Number of constraints 
+    // Number of constraints 
     const size_t number_constraints { (n * state_dimension) };
-
-    Eigen::VectorXd poly_coeffs;  // polynomial coefficients          
+    // polynomial coefficients
+    Eigen::VectorXd poly_coeffs;           
 };
 
 #endif /* MPC_H */

@@ -39,12 +39,14 @@ It may be useful to distinguish three significant parts within it: *State*, *Act
 
 My implementation is slightly refactored version of MPC given in class. It uses https://projects.coin-or.org/Ipopt as a lib for large-scale ​nonlinear optimization. 
 
-#### Coordinate transformations
-The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp line 63 - uses helper.h `convert_space` function)
+#### Coordinate Transformations and Polynomial Fitting
+The optimizer uses vehicle coordinates and since simulator works in global map coordinates, reference trajectory points need to be transformed into vehicle coordinates. (main.cpp lines 63-67 with explanation).
+Vehicle coordinate system is a system where vehicle is a center of the coordinate system. To build a line the vehicle should try to travel I used polyfit function (third-degree polynomial line)  on those transformed waypoints (line 86).  
+I used polyeval (polynomial function) to calculate cross-track error at px and py.  
+Psi error was calculated as: psi - desired angle  where desired orientation angle is tangent to trajectory at x (calculated using derivative function).  
 
 #### Latency compensation
 Simulator has builtin latency=100 millis. To make sure that the optimizer works with most present state that latency needs to be compensated: Code lines 69 - 90 (with explanation).
-
 
 #### Optimization time horizon
 The model uses N (number of steps) = 10 and dt (time step) = 0.1 to calculate vehicle state.  
@@ -53,7 +55,7 @@ Cahnge cost for:
 * N - increasing it allows to take longer future reference trajectory into account when computing the optimal values for present and require longer computational time.
 * dt - decreasing improves approximation but decreases time frame.
 
-I have tested it within N=[10,15] and dt=[0.05, 0.3]: 10 and 0.1 showed the best from prerformance:precision perspectives. 
+I have tested it within N=[5,15] and dt=[0.05, 0.3]: 10 and 0.1 showed the best from prerformance:precision perspectives. 
 
 ## Dependencies
 
